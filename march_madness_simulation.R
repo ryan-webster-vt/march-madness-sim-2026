@@ -7,37 +7,37 @@ library(progressr)
 # Construct Teams ---------------------------------------------------------
 
 teams_east <- data.frame(
-  teams = c('Duke', 'Illinois', 'Alabama', 'Texas Tech', 'St. John\'s', 
-            'North Carolina', 'Saint Mary\'s', 'Kentucky', 'NC State', 'UCF', 
-            'Saint Louis', 'Yale', 'UNC Wilmington', 'North Dakota State', 'Central Arkansas',
-            'Long Island University', 'Bethune-Cookman'),
-  seed = c(1:16, 16),
-  playin_group = c(rep(NA, 15), 'east_16', 'east_16'),
+  teams = c('Duke', 'UConn', 'Michigan State', 'Kansas', 'St. John\'s', 
+            'Louisville', 'UCLA', 'Ohio State', 'TCU', 'UCF', 
+            'South Florida', 'Northern Iowa', 'California Baptist', 'North Dakota State', 'Furman',
+            'Siena'),
+  seed = c(1:16),
+  playin_group = NA,
   region = 'east'
 )
 
 teams_midwest <- data.frame(
-  teams = c('Michigan', 'UConn', 'Iowa State', 'Vanderbilt', 'Louisville', 
-            'Wisconsin', 'Georgia', 'Iowa', 'Texas', 'TCU', 'Stanford', 'VCU',
-            'Miami (OH)', 'Liberty', 'Navy', 'Wright State', 'UMBC', 'Howard'),
+  teams = c('Michigan', 'Iowa State', 'Virginia', 'Alabama', 'Texas Tech', 
+            'Tennessee', 'Kentucky', 'Georgia', 'Saint Louis', 'Santa Clara', 'Miami (OH)', 'SMU',
+            'Akron', 'Hofstra', 'Wright State', 'Tennessee State', 'UMBC', 'Howard'),
   seed = c(1:11, 11, 12:16, 16),
   playin_group = c(rep(NA, 10), 'midwest_11', 'midwest_11', rep(NA, 4), 'midwest_16', 'midwest_16'),
   region = 'midwest'
 )
 
 teams_south <- data.frame(
-  teams = c('Florida', 'Houston', 'Purdue', 'Nebraska', 'Kansas', 'Tennessee', 
-            'Miami', 'Ohio State', 'Utah State', 'Texas A&M', 'South Florida', 
-            'Northern Iowa', 'Stephen F. Austin', 'East Tennessee State', 'Troy', 'Tennessee State'),
-  seed = c(1:16),
-  playin_group = NA,
+  teams = c('Florida', 'Houston', 'Illinois', 'Nebraska', 'Vanderbilt', 'North Carolina', 
+            'Saint Mary\'s', 'Clemson', 'Iowa', 'Texas A&M', 'VCU', 
+            'McNeese', 'Troy', 'Pennsylvania', 'Idaho', 'Prairie View A&M', 'Lehigh'),
+  seed = c(1:16, 16),
+  playin_group = c(rep(NA, 15), 'south_16', 'south_16'),
   region = 'south'
 )
 
 teams_west <- data.frame(
-  teams = c('Arizona', 'Michigan State', 'Virginia', 'Gonzaga', 'Arkansas',
-            'BYU', 'Villanova', 'Clemson', 'UCLA', 'Santa Clara', 'Missouri', 'SMU',
-            'High Point', 'Utah Valley', 'UC Irvine', 'Portland State', 'Merrimack'),
+  teams = c('Arizona', 'Purdue', 'Gonzaga', 'Arkansas', 'Wisconsin',
+            'BYU', 'Miami', 'Villanova', 'Utah State', 'Missouri', 'Texas', 'NC State',
+            'High Point', 'Hawai\'i', 'Kennesaw State', 'Queens University', 'Long Island University'),
   seed = c(1:11, 11, 12:16),
   playin_group = c(rep(NA, 10), 'west_11', 'west_11', rep(NA, 5)),
   region = 'west'
@@ -45,8 +45,9 @@ teams_west <- data.frame(
 
 teams <- rbind(teams_east, teams_midwest, teams_south, teams_west)
 
+current_rankings <- read.csv('webstar_rankings_03_15_2026.csv')
+
 # Merge current ratings onto teams df
-current_rankings <- current_rankings %>% filter(Date == '2026-03-08')
 teams <- inner_join(teams, current_rankings, by = join_by('teams' == 'Team'))
 
 
