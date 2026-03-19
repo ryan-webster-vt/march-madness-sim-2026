@@ -45,7 +45,7 @@ teams_west <- data.frame(
 
 teams <- rbind(teams_east, teams_midwest, teams_south, teams_west)
 
-current_rankings <- read.csv('webstar_rankings_03_15_2026.csv')
+current_rankings <- read.csv('current_rankings_03_16_2026.csv')
 
 # Merge current ratings onto teams df
 teams <- inner_join(teams, current_rankings, by = join_by('teams' == 'Team'))
@@ -132,8 +132,8 @@ simulate_bracket_rounds <- function(teams) {
   })
   
   # Final Four
-  f1 <- simulate_game(t64_by_name(region_winners[1], teams), t64_by_name(region_winners[2], teams))$teams
-  f2 <- simulate_game(t64_by_name(region_winners[3], teams), t64_by_name(region_winners[4], teams))$teams
+  f1 <- simulate_game(t64_by_name(region_winners[1], teams), t64_by_name(region_winners[3], teams))$teams
+  f2 <- simulate_game(t64_by_name(region_winners[2], teams), t64_by_name(region_winners[4], teams))$teams
   F4 <- c(f1, f2)
   
   Champ <- simulate_game(t64_by_name(f1, teams), t64_by_name(f2, teams))$teams
@@ -141,7 +141,7 @@ simulate_bracket_rounds <- function(teams) {
   list(R64 = R64, R32 = R32, S16 = S16, E8 = E8, F4 = F4, Champ = Champ)
 }
 
-n_sims <- 1000
+n_sims <- 10000
 
 results <- map(1:n_sims, ~simulate_bracket_rounds(teams), .progress = TRUE)
 
@@ -161,3 +161,36 @@ S16_probs <- compute_prob(map(results, "S16"), n_sims)
 E8_probs  <- compute_prob(map(results, "E8"), n_sims)
 F4_probs  <- compute_prob(map(results, "F4"), n_sims)
 Champ_probs <- compute_prob(map(results, "Champ"), n_sims)
+
+final_table <- merge(R64_probs, teams[, c('teams', 'Rank', 'seed', 'region')], by.x = "team", by.y = "teams")
+final_table <- left_join(final_table, R32_probs, by = 'team')
+final_table <- left_join(final_table, S16_probs, by = 'team')
+final_table <- left_join(final_table, E8_probs, by = 'team')
+final_table <- left_join(final_table, F4_probs, by = 'team')
+final_table <- left_join(final_table, Champ_probs, by = 'team')
+
+final_table <- final_table %>% rename(
+  prob_r64   = prob.x,
+  prob_r32   = prob.y,
+  prob_s16   = prob.x.x,
+  prob_e8    = prob.y.y,
+  prob_f4    = prob.x.x.x,
+  prob_champ = prob.y.y.y
+) %>% 
+  select(
+    team,
+    Rank,
+    seed,
+    region,
+    prob_r64,
+    prob_r32,
+    prob_s16,
+    prob_e8,
+    prob_f4,
+    prob_champ
+)
+
+region_champ <- final_table %>% 
+  group_by(region) %>% 
+  summarise(sum(prob_champ, na.rm = TRUE))
+
